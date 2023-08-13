@@ -1,11 +1,21 @@
 "use client";
 
 import { useState } from "react";
+import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+import { useRouter } from "next/navigation";
 
-export function SuggestSongForm() {
-  const [song, setSong] = useState<{ title: string; src: string }>();
+export function SuggestSongForm({ roomId }: { roomId: number }) {
+  const [song, setSong] = useState<{
+    title: string;
+    lyrics: string;
+    src: string;
+  }>();
 
   const [loading, setLoading] = useState(false);
+
+  const supabase = createClientComponentClient();
+
+  const router = useRouter();
 
   return (
     <div className="space-y-8">
@@ -70,14 +80,51 @@ export function SuggestSongForm() {
             <div className="space-y-2">
               <span>We've detected the song is {song.title}</span>
               <img src={song.src} alt="song cover" />
-              <button
-                type="submit"
-                className={
-                  "bg-foreground py-3 px-6 rounded-lg text-background "
-                }
+              <form
+                onSubmit={async (e) => {
+                  e.preventDefault();
+
+                  const { data: insertedSongData, error: insertedSongError } =
+                    await supabase
+                      .from("songs")
+                      .insert({
+                        title: song.title,
+                        lyrics: song.lyrics,
+                      })
+                      .select();
+
+                  if (insertedSongData) {
+                    const {
+                      data: insertedRoomSongData,
+                      error: insertedRoomSongError,
+                    } = await supabase
+                      .from("room_songs")
+                      .insert({
+                        room_id: roomId,
+                        song_id: insertedSongData[0].id,
+                        song_image_src: song.src,
+                      })
+                      .select();
+
+                    if (insertedRoomSongData) {
+                      router.push(`/rooms/${roomId}`);
+                    } else {
+                      console.error(insertedRoomSongError);
+                    }
+                  } else {
+                    console.error(insertedSongError);
+                  }
+                }}
               >
-                Challenge friends
-              </button>
+                <button
+                  type="submit"
+                  className={
+                    "bg-foreground py-3 px-6 rounded-lg text-background "
+                  }
+                >
+                  Challenge friends
+                </button>
+              </form>
             </div>
           )
         ) : null}

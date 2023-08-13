@@ -2,7 +2,7 @@ import * as cheerio from "cheerio";
 
 const GENIUS_ACCESS_TOKEN = process.env.GENIUS_ACCESS_TOKEN;
 
-export async function scrapeTitle(q: string) {
+export async function scrapeSong(q: string) {
   const resp = await fetch(`https://api.genius.com/search?q=${q}`, {
     headers: {
       Authorization: `Bearer ${GENIUS_ACCESS_TOKEN}`,
@@ -15,61 +15,51 @@ export async function scrapeTitle(q: string) {
     const [hit] = response.hits;
     const { full_title, url } = hit.result;
 
-    return full_title;
-  } else {
-    return "";
+    const lyrics = await scrapeLyrics(url);
+
+    return { title: full_title, lyrics };
   }
+
+  return {};
 }
 
-export async function scrapeLyrics(q: string) {
-  const resp = await fetch(`https://api.genius.com/search?q=${q}`, {
-    headers: {
-      Authorization: `Bearer ${GENIUS_ACCESS_TOKEN}`,
-    },
-  });
+export async function scrapeLyrics(url: string) {
+  const songResp = await fetch(url);
+  const songHtml = await songResp.text();
 
-  const { meta, response } = await resp.json();
+  const $ = cheerio.load(songHtml);
+  const lyrics = $("[data-lyrics-container=true]").html();
 
-  if (meta.status === 200 && response) {
-    const [hit] = response.hits;
-    const { full_title, url } = hit.result;
+  return lyrics;
 
-    const songResp = await fetch(url);
-    const songHtml = await songResp.text();
+  // let chorusString = "[Chorus]";
+  // let verseString = "[Verse";
 
-    const $ = cheerio.load(songHtml);
-    const lyrics = $("[data-lyrics-container=true]").html();
+  // if (lyrics.indexOf(chorusString) === -1) {
+  //   chorusString = "[Припев]";
+  //   verseString = "[Куплет";
+  // }
 
-    if (!lyrics) return "";
+  // if (chorusString.indexOf(chorusString) > -1) {
+  //   const chorusBeginIndex = lyrics.indexOf(chorusString);
+  //   const chorusEndIndex = chorusBeginIndex + chorusString.length;
 
-    let chorusString = "[Chorus]";
-    let verseString = "[Verse";
+  //   const chorus = lyrics?.slice(
+  //     chorusEndIndex,
+  //     lyrics.indexOf(verseString, chorusEndIndex)
+  //   );
 
-    if (lyrics.indexOf(chorusString) === -1) {
-      chorusString = "[Припев]";
-      verseString = "[Куплет";
-    }
+  //   const chorusText = cheerio.load(chorus.replace(/<br>/g, " ")).text();
+  //   const chorusText2 = cheerio.load(chorus).text();
 
-    if (chorusString.indexOf(chorusString) > -1) {
-      const chorusBeginIndex = lyrics.indexOf(chorusString);
-      const chorusEndIndex = chorusBeginIndex + chorusString.length;
+  //   console.log({
+  //     chorusText,
+  //     chorusText2,
+  //   });
 
-      const chorus = lyrics?.slice(
-        chorusEndIndex,
-        lyrics.indexOf(verseString, chorusEndIndex)
-      );
-
-      const chorusText = cheerio.load(chorus.replace(/<br>/g, " ")).text();
-      const chorusText2 = cheerio.load(chorus).text();
-
-      console.log({
-        chorusText,
-        chorusText2,
-      });
-
-      return chorusText;
-    } else {
-      return lyrics;
-    }
-  }
+  //   return chorusText;
+  // } else {
+  //   return lyrics;
+  // }
+  // }
 }
