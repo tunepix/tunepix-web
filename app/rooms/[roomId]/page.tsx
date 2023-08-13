@@ -42,9 +42,14 @@ export default async function Room({ params }: { params: { roomId: string } }) {
           {roomSongs?.map((roomSong) => (
             <div key={roomSong.id} className="space-y-2">
               <img src={roomSong.song_image_src} alt="" className="w-40 h-40" />
-              <button className="bg-background border rounded px-3 py-2">
-                Guess the answer
-              </button>
+              <Link
+                href={`/challenges/${roomSong.id}/answer`}
+                className="inline-block"
+              >
+                <button className="bg-background border rounded px-3 py-2">
+                  Guess the answer
+                </button>
+              </Link>
             </div>
           ))}
         </div>
