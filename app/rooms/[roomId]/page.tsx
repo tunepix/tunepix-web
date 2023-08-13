@@ -25,7 +25,7 @@ export default async function Room({ params }: { params: { roomId: string } }) {
     .select()
     .eq("id", params.roomId);
 
-  const [room] = data as Room[];
+  const [room] = (data ?? []) as Room[];
 
   return (
     <div className="space-y-8">

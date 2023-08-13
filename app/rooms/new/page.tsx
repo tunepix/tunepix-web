@@ -24,10 +24,10 @@ export default function NewRoom() {
   };
 
   return (
-    <div className="flex flex-col gap-8">
+    <div className="flex flex-col gap-8 items-center p-10 border rounded-lg">
       <h1 className="text-3xl font-bold ">Create room</h1>
       <form action={addRoom}>
-        <div className="flex flex-col gap-4 items-start ">
+        <div className="flex flex-col gap-8 items-start ">
           <div className="flex flex-col gap-2 w-72">
             <label htmlFor="name">name</label>
             <input
