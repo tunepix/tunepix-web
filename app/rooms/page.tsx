@@ -2,7 +2,7 @@ import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
 import { cookies } from "next/headers";
 import Link from "next/link";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 export interface Room {
   id: number;
