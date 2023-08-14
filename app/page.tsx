@@ -94,6 +94,7 @@ export default async function Index() {
                       </div>
                     </div>
                   ))}
+                  {(rooms.data ?? []).length === 0 && <span>no rooms yet</span>}
                 </div>
                 <ViewAllLink href="/rooms" />
               </div>
@@ -118,8 +119,10 @@ export default async function Index() {
                       </div>
                     </div>
                   ))}
+                  {(globalScores.data ?? []).length === 0 && (
+                    <span>no answers yet</span>
+                  )}
                 </div>
-                {/* <ViewAllLink href="/leaderboard" /> */}
               </div>
             </div>
           </div>

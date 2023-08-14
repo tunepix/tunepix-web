@@ -20,11 +20,9 @@ export default async function RoomSuggest({
   }
 
   return (
-    <div className="space-y-8">
-      <div className="flex flex-col gap-4">
-        <h1 className="text-3xl font-bold ">Suggest song</h1>
-        {params.roomId ? <SuggestSongForm roomId={params.roomId} /> : null}
-      </div>
+    <div className="flex flex-col gap-8 items-center p-10 border rounded-lg">
+      <h1 className="text-3xl font-bold ">Suggest song</h1>
+      {params.roomId ? <SuggestSongForm roomId={params.roomId} /> : null}
     </div>
   );
 }

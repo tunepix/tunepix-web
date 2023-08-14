@@ -15,34 +15,26 @@ export interface Room {
 export default async function Rooms() {
   const supabase = createServerComponentClient({ cookies });
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { data } = await supabase.from("rooms").select();
 
-  if (user) {
-    const { data } = await supabase.from("rooms").select();
+  const rooms = data?.map((r) => ({ ...r, members: [] })) as Room[];
 
-    const rooms = data?.map((r) => ({ ...r, members: [] })) as Room[];
-
-    return (
-      <div className="space-y-8">
-        <div className="grid grid-cols-3 w-full gap-8">
-          {rooms.map((room) => (
-            <Room key={room.id} room={room} />
-          ))}
-        </div>
-        <footer className="flex items-center justify-center">
-          <Link href={"/rooms/new"}>
-            <button className="bg-foreground py-3 px-6 rounded-lg text-background">
-              Create a <strong>room</strong>
-            </button>
-          </Link>
-        </footer>
+  return (
+    <div className="space-y-8">
+      <div className="grid grid-cols-3 w-full gap-8">
+        {rooms.map((room) => (
+          <Room key={room.id} room={room} />
+        ))}
       </div>
-    );
-  }
-
-  return <div>Sign in to view rooms</div>;
+      <footer className="flex items-center justify-center">
+        <Link href={"/rooms/new"}>
+          <button className="bg-foreground py-3 px-6 rounded-lg text-background">
+            Create a <strong>room</strong>
+          </button>
+        </Link>
+      </footer>
+    </div>
+  );
 }
 
 function Room({ room }: { room: Room }) {
