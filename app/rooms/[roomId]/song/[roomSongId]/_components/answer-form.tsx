@@ -1,8 +1,7 @@
 "use client";
 
-import { use, useState } from "react";
+import { useState } from "react";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
-import { useRouter } from "next/navigation";
 
 export function AnswerSongForm({ roomSongId }: { roomSongId: number }) {
   const [song, setSong] = useState<{
@@ -12,8 +11,6 @@ export function AnswerSongForm({ roomSongId }: { roomSongId: number }) {
   const [loading, setLoading] = useState(false);
 
   const supabase = createClientComponentClient();
-
-  const router = useRouter();
 
   return (
     <div className="space-y-8">
@@ -34,7 +31,7 @@ export function AnswerSongForm({ roomSongId }: { roomSongId: number }) {
             body: JSON.stringify({ q }),
           });
 
-          const { result, error } = await resp.json();
+          const { result } = await resp.json();
 
           if (result) {
             setSong(result);
@@ -73,20 +70,20 @@ export function AnswerSongForm({ roomSongId }: { roomSongId: number }) {
           loading ? (
             <span>Searching...</span>
           ) : (
-            <div className="space-y-2">
+            <div className="space-y-4">
               <span>Your answer is {song.title}</span>
+
               <form
                 onSubmit={async (e) => {
                   e.preventDefault();
 
-                  const { data: roomSongData, error: roomSongError } =
-                    await supabase
-                      .from("room_songs")
-                      .select()
-                      .eq("id", roomSongId);
+                  const { data: roomSongData } = await supabase
+                    .from("room_songs")
+                    .select()
+                    .eq("id", roomSongId);
 
                   if (roomSongData) {
-                    const { data: songData, error: songError } = await supabase
+                    const { data: songData } = await supabase
                       .from("songs")
                       .select()
                       .eq("id", roomSongData[0].song_id);
@@ -97,31 +94,27 @@ export function AnswerSongForm({ roomSongId }: { roomSongId: number }) {
                           data: { user },
                         } = await supabase.auth.getUser();
 
-                        const {
-                          data: leaderboardData,
-                          error: leaderboardError,
-                        } = await supabase
-                          .from("leaderboard")
+                        const userScore = await supabase
+                          .from("scores")
                           .select()
-                          .eq("user_id", user?.id);
+                          .eq("profile_id", user?.id)
+                          .eq("room_song_id", roomSongId);
 
-                        console.log({ leaderboardData, leaderboardError });
+                        if (userScore.data) {
+                          if (Boolean(userScore.data[0]?.score)) {
+                            return alert("you already guessed it!");
+                          }
 
-                        const {
-                          data: leaderboardUpsertData,
-                          error: leaderboardUpsertError,
-                        } = await supabase.from("leaderboard").upsert({
-                          id: leaderboardData?.[0]?.id,
-                          user_id: user?.id,
-                          score: (leaderboardData?.[0]?.score ?? 0) + 1,
-                        });
+                          const insertedScore = await supabase
+                            .from("scores")
+                            .insert({
+                              profile_id: user?.id,
+                              room_song_id: roomSongId,
+                              score: 1,
+                            });
 
-                        console.log({
-                          leaderboardUpsertData,
-                          leaderboardUpsertError,
-                        });
-
-                        alert("You get it!!");
+                          alert("You get it!!");
+                        }
                       } else {
                         alert("wrong ser!!");
                       }

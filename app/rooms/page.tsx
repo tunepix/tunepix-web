@@ -51,14 +51,7 @@ function Room({ room }: { room: Room }) {
       <Link href={`/rooms/${room.id}`}>
         <h2 className="font-medium text-lg">{room.name}</h2>
       </Link>
-      <section>
-        <h3 className="font-medium">Members</h3>
-        <ul>
-          {room.members.map((m) => (
-            <li>{m}</li>
-          ))}
-        </ul>
-      </section>
+      <p>{room.desc}</p>
     </div>
   );
 }

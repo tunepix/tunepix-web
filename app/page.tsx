@@ -5,13 +5,6 @@ import { LogoutButton } from "../components/logout-button";
 
 export const dynamic = "force-dynamic";
 
-const leaderboard = [
-  { id: 0, name: "Sergusha", score: 16900 },
-  { id: 1, name: "Valera", score: 14320 },
-  { id: 2, name: "Antosha", score: 6340 },
-  { id: 3, name: "Sashka", score: 2222 },
-];
-
 export default async function Index() {
   const supabase = createServerComponentClient({ cookies });
 
@@ -19,7 +12,11 @@ export default async function Index() {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const { data: rooms } = await supabase.from("rooms").select();
+  const rooms = await supabase
+    .from("rooms")
+    .select("id, name, room_songs (count)");
+
+  const globalScores = await supabase.from("global_scores").select();
 
   return (
     <div className="w-full flex flex-col items-center">
@@ -84,7 +81,7 @@ export default async function Index() {
                   Popular and recently opened rooms
                 </p>
                 <div className="w-full justify-center overflow-hidden">
-                  {(rooms ?? []).slice(0, 5).map(({ id, name, members }) => (
+                  {rooms.data?.slice(0, 5).map(({ id, name, room_songs }) => (
                     <div
                       key={id}
                       className="w-full grid grid-cols-4 border-b last:border-b-0 text-sm"
@@ -93,7 +90,7 @@ export default async function Index() {
                         <Link href={`/rooms/${id}`}>{name}</Link>
                       </div>
                       <div className="border-l font-bold p-4 pr-0 min-h-12 w-full">
-                        👥 {members?.length ?? 0}
+                        {room_songs[0].count} 🎵
                       </div>
                     </div>
                   ))}
@@ -105,19 +102,17 @@ export default async function Index() {
               <h3 className="font-bold mb-2 min-h-4 lg:min-h-6">
                 Leaderboard 🎯
               </h3>
-              <div className="flex flex-col grow gap-4 justify-between">
+              <div className="flex flex-col grow gap-4">
                 <p className="text-sm opacity-70">
                   Track current leaders in realtime
                 </p>
                 <div className="w-full justify-center overflow-hidden">
-                  {leaderboard.map(({ id, name, score }) => (
+                  {globalScores.data?.map(({ email, score }) => (
                     <div
-                      key={id}
+                      key={email}
                       className="w-full grid grid-cols-4 border-b last:border-b-0 text-sm"
                     >
-                      <div className="col-span-3 p-4 pl-0">
-                        <Link href={`/rooms/${id}`}>{name}</Link>
-                      </div>
+                      <div className="col-span-3 p-4 pl-0">{email}</div>
                       <div className="border-l font-bold p-4 pr-0 min-h-12 w-full">
                         {score}
                       </div>
@@ -153,7 +148,7 @@ export default async function Index() {
 
 function ViewAllLink({ href }: { href: string }) {
   return (
-    <div className="flex justify-end items-center text-sm">
+    <div className="flex justify-end items-center text-sm mt-auto">
       <Link
         href={href}
         className="translate-x-2 group-hover:translate-x-0 transition-all"

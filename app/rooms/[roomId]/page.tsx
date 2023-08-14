@@ -28,6 +28,11 @@ export default async function Room({ params }: { params: { roomId: string } }) {
     .select()
     .eq("room_id", params.roomId);
 
+  const roomScores = await supabase
+    .from("room_scores")
+    .select()
+    .eq("room_id", params.roomId);
+
   return (
     <div className="space-y-8">
       <div className="flex flex-col gap-4 border-b border-b-foreground/10 pb-4">
@@ -36,22 +41,39 @@ export default async function Room({ params }: { params: { roomId: string } }) {
         </h1>
         <p>{room.desc}</p>
       </div>
-      <div className="space-y-4 border-b border-b-foreground/10 pb-8">
-        <h2 className="text-2xl font-medium">Active challenges</h2>
-        <div className="grid grid-cols-5 gap-8">
-          {roomSongs?.map((roomSong) => (
-            <div key={roomSong.id} className="space-y-2">
-              <img src={roomSong.song_image_src} alt="" className="w-40 h-40" />
-              <Link
-                href={`/challenges/${roomSong.id}/answer`}
-                className="inline-block"
-              >
-                <button className="bg-background border rounded px-3 py-2">
-                  Guess the answer
-                </button>
-              </Link>
-            </div>
-          ))}
+      <div className="grid grid-cols-3 gap-8">
+        <div className="space-y-4 border-b border-b-foreground/10 pb-8 col-span-2">
+          <h2 className="text-2xl font-medium">Active challenges</h2>
+          <div className="grid grid-cols-3 gap-8">
+            {roomSongs?.map((roomSong) => (
+              <div key={roomSong.id} className="space-y-2">
+                <img
+                  src={roomSong.song_image_src}
+                  alt=""
+                  className="w-40 h-40"
+                />
+                <Link
+                  href={`/rooms/${params.roomId}/song/${roomSong.id}/answer`}
+                  className="inline-block"
+                >
+                  <button className="bg-background border rounded px-3 py-2">
+                    Guess the answer
+                  </button>
+                </Link>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="col-span-1 space-y-4">
+          <h2 className="text-2xl font-medium">Room leaderboard</h2>
+          <div className="flex flex-col gap-2">
+            {roomScores.data?.map((score) => (
+              <div key={score.email}>
+                {score.email} {score.score} pts
+              </div>
+            ))}
+          </div>
         </div>
       </div>
       <footer>
