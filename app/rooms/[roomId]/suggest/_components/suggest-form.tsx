@@ -17,6 +17,8 @@ export function SuggestSongForm({ roomId }: { roomId: number }) {
 
   const router = useRouter();
 
+  const [uploading, setUploading] = useState(false);
+
   return (
     <div className="space-y-8">
       <form
@@ -55,6 +57,7 @@ export function SuggestSongForm({ roomId }: { roomId: number }) {
                 type="text"
                 id="q"
                 name="q"
+                required
                 placeholder="enter lyrics or title"
                 className="px-3 py-2 border shadow-inner rounded text-slate-950"
               />
@@ -66,7 +69,7 @@ export function SuggestSongForm({ roomId }: { roomId: number }) {
                 }
                 disabled={loading}
               >
-                {loading ? "Searching..." : "Search"}
+                {loading ? "Generating..." : "Generate"}
               </button>
             </div>
           </div>
@@ -83,6 +86,8 @@ export function SuggestSongForm({ roomId }: { roomId: number }) {
               <form
                 onSubmit={async (e) => {
                   e.preventDefault();
+
+                  setUploading(true);
 
                   const { data: insertedSongData, error: insertedSongError } =
                     await supabase
@@ -137,15 +142,18 @@ export function SuggestSongForm({ roomId }: { roomId: number }) {
                   } else {
                     console.error(insertedSongError);
                   }
+
+                  setUploading(false);
                 }}
               >
                 <button
                   type="submit"
                   className={
-                    "bg-foreground py-3 px-6 rounded-lg text-background "
+                    "bg-foreground py-3 px-6 rounded-lg text-background disabled:opacity-50"
                   }
+                  disabled={uploading}
                 >
-                  Challenge friends
+                  {uploading ? "Uploading..." : "Challenge friends"}
                 </button>
               </form>
             </div>

@@ -51,6 +51,7 @@ export function AnswerSongForm({ roomSongId }: { roomSongId: number }) {
                 type="text"
                 id="q"
                 name="q"
+                required
                 placeholder="enter lyrics or title"
                 className="px-3 py-2 border shadow-inner rounded text-slate-950"
               />
@@ -108,15 +109,14 @@ export function AnswerSongForm({ roomSongId }: { roomSongId: number }) {
                             return alert("you already guessed it!");
                           }
 
-                          const insertedScore = await supabase
-                            .from("scores")
-                            .insert({
-                              profile_id: user?.id,
-                              room_song_id: roomSongId,
-                              score: 1,
-                            });
+                          await supabase.from("scores").insert({
+                            profile_id: user?.id,
+                            room_song_id: roomSongId,
+                            score: 1,
+                          });
 
-                          alert("You get it!!");
+                          alert("you get it!!");
+
                           router.push(`/rooms/${roomSongData?.[0].room_id}`);
                         }
                       } else {

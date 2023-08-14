@@ -119,7 +119,7 @@ export default async function Index() {
                     </div>
                   ))}
                 </div>
-                <ViewAllLink href="/leaderboard" />
+                {/* <ViewAllLink href="/leaderboard" /> */}
               </div>
             </div>
           </div>

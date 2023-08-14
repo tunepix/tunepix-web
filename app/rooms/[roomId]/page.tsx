@@ -62,6 +62,10 @@ export default async function Room({ params }: { params: { roomId: string } }) {
                 </Link>
               </div>
             ))}
+
+            {(roomSongs ?? []).length === 0 && (
+              <span>No challenges yet...</span>
+            )}
           </div>
         </div>
 
