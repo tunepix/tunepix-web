@@ -73,6 +73,9 @@ export default async function Room({ params }: { params: { roomId: string } }) {
                 {score.email} {score.score} pts
               </div>
             ))}
+            {(roomScores.data ?? []).length === 0 && (
+              <span>No answers yet</span>
+            )}
           </div>
         </div>
       </div>

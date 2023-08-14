@@ -106,6 +106,29 @@ export function SuggestSongForm({ roomId }: { roomId: number }) {
                       })
                       .select();
 
+                    const songResp = await fetch(song.src);
+                    const songImageBlob = await songResp.blob();
+
+                    const imagePath = `public/room_song_${insertedRoomSongData?.[0].id}.png`;
+
+                    await supabase.storage
+                      .from("song_images")
+                      .upload(imagePath, songImageBlob, {
+                        cacheControl: "3600",
+                        upsert: false,
+                      });
+
+                    const { data: imageUrl } = supabase.storage
+                      .from("song_images")
+                      .getPublicUrl(imagePath);
+
+                    await supabase
+                      .from("room_songs")
+                      .update({
+                        song_image_src: imageUrl.publicUrl,
+                      })
+                      .eq("id", insertedRoomSongData?.[0].id);
+
                     if (insertedRoomSongData) {
                       router.push(`/rooms/${roomId}`);
                     } else {

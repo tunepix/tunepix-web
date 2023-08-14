@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+import { useRouter } from "next/navigation";
 
 export function AnswerSongForm({ roomSongId }: { roomSongId: number }) {
   const [song, setSong] = useState<{
@@ -11,6 +12,8 @@ export function AnswerSongForm({ roomSongId }: { roomSongId: number }) {
   const [loading, setLoading] = useState(false);
 
   const supabase = createClientComponentClient();
+
+  const router = useRouter();
 
   return (
     <div className="space-y-8">
@@ -114,6 +117,7 @@ export function AnswerSongForm({ roomSongId }: { roomSongId: number }) {
                             });
 
                           alert("You get it!!");
+                          router.push(`/rooms/${roomSongData?.[0].room_id}`);
                         }
                       } else {
                         alert("wrong ser!!");
